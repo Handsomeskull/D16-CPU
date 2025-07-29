@@ -168,7 +168,8 @@ git commit -m "Add: PUSH instruction"
 # Push and open a PR
 
 
-
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
+![Made with C](https://img.shields.io/badge/Made%20with-C-blue)
 
 
 ### 📜 License
