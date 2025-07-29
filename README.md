@@ -132,10 +132,6 @@ HALT
 ```
 Watch the values update live in the GUI!
 
-
-
-
-
  ### To Do.
 
 1-Stack support (PUSH, POP)
@@ -149,29 +145,27 @@ Watch the values update live in the GUI!
 5-Dockerfile for easy setup
 
 
-                           
-
-
 
 ### 🤝 Contributing
 
 Contributions are welcome!
 
-# Fork & clone,
+### Fork & clone,
 ```
 git checkout -b feature/new-instruction
 ```
-# Make changes and commit
+### Make changes and commit
 ```
 git commit -m "Add: PUSH instruction"
 ```
-# Push and open a PR
+### Push and open a PR
+
+
+
+### 📜 License
+Licensed under the MIT License. See the LICENSE file for details.
+
 
 
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Made with C](https://img.shields.io/badge/Made%20with-C-blue)
-
-
-### 📜 License
-
-Licensed under the MIT License. See the LICENSE file for details.
