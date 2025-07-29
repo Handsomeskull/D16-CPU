@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D16 CPU Durum Monitörü</title>
+    <title>D16 CPU Status Monitor/title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,16 +32,16 @@
     <div class="max-w-7xl mx-auto">
         <!-- Başlık -->
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-cyan-400">D16 CPU Monitörü</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-cyan-400">D16 CPU Status Monitor</h1>
             <div class="flex items-center space-x-2">
                 <div id="status-indicator" class="w-4 h-4 rounded-full bg-red-500 transition-colors duration-500"></div>
-                <span id="status-text" class="font-semibold">BEKLİYOR</span>
+                <span id="status-text" class="font-semibold">WAİTİNG</span>
             </div>
         </div>
         
         <!-- YENİ: Hata,Uyarı Mesajı Alanı -->
         <div id="error-banner" class="hidden bg-red-800 border border-red-600 text-white px-4 py-2 rounded-lg mb-6 text-center">
-            Simülatör çalışmıyor veya d16_state.json dosyasına erişilemiyor. Lütfen terminalde simülatörü çalıştırdığınızdan emin olun.
+            The simulator is not running or the d16_state.json file is not accessible. Please make sure you are running the simulator in the terminal.
         </div>
 
         <!-- Registerlar ve Flaglar -->
@@ -114,10 +114,10 @@
 
                 if (state.halted) {
                     statusIndicatorEl.classList.replace('bg-green-500', 'bg-red-500');
-                    statusTextEl.textContent = 'DURDURULDU';
+                    statusTextEl.textContent = 'HALTED';
                 } else {
                     statusIndicatorEl.classList.replace('bg-red-500', 'bg-green-500');
-                    statusTextEl.textContent = 'ÇALIŞIYOR';
+                    statusTextEl.textContent = 'WORKING';
                 }
 
                 if (state.pc !== lastKnownPC || lastRamState.length === 0) {
@@ -144,7 +144,7 @@
             } catch (error) {
                 errorBannerEl.classList.remove('hidden'); // Hata varsa bannerı göster
                 statusIndicatorEl.classList.replace('bg-green-500', 'bg-red-500');
-                statusTextEl.textContent = 'ERİŞİM HATASI';
+                statusTextEl.textContent = 'ACCESS FAILURE';
             }
         }
 
