@@ -1,0 +1,40 @@
+; Fibonacci Serisi
+; Sonuçları RAM[200]'den itibaren depolar.
+
+LOAD A, 0       ; n-2. sayı
+LOAD B, 1       ; n-1. sayı
+LOAD C, 200     ; Depolama adresi
+LOAD D, 10      ; Üretilecek sayı adedi (sayaç)
+
+; --- Döngü Başlangıcı (Adres 12) ---
+STORE A, C      ; Mevcut sayıyı (A) depola
+
+; Yeni Fibonacci sayısını hesapla (A+B) ve B'ye koy
+ADD B, A        ; B = B + A (yeni n-1. sayı)
+; Eski B'yi (yeni n-2. sayı) A'ya taşı
+SUB B, A        ; B = (yeni B) - (eski A) -> bu eski B'yi verir
+ADD A, B        ; A = (eski A) + (eski B) -> bu yeni B'yi verir
+SUB A, B        ; A = (yeni B) - (eski B) -> bu eski A'yı verir. Bu SWAP çok karmaşık amk.
+
+; En basit yol: Bir register'ı geçici olarak kullanmak.
+; Maalesef bu mimaride bu da zor. Benimde kod bilgisi bir yere kadar dimi :d?
+; A=0, B=1. Sonraki A=B, B=A+B olmalı
+
+; --- FİNALLLLLL PROGRAM ---
+LOAD A, 0       ; n-2
+LOAD B, 1       ; n-1
+LOAD C, 200     ; RAM adresi
+LOAD D, 1       ; Sabit 1
+
+; Döngü (Adres 12)
+STORE A, C      ; A'yı depola
+ADD C, D        ; Adresi artır
+; A ve B'yi SWAP et ve A'ya toplamı koy
+; A -> temp, B -> A, temp+B -> B
+ADD A, B        ; A = A+B (yeni sayı)
+SUB A, B        ; A = (eski A)
+SUB B, A        ; B = (eski B)
+JMP 12          ; Sonsuz döngü (test için)
+
+; HALT'a asla ulaşmaz
+HALT

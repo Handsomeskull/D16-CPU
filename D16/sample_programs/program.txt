@@ -1,0 +1,16 @@
+; D16 Geriye Sayma Programı
+; Kullanıcıdan bir sayı alır ve 0'a kadar sayar.
+
+IN A          ; Kullanıcıdan bir sayı al ve A register'ına koy (örneğin 5)
+LOAD B, 1     ; Azaltma işlemi için B register'ına 1 yükle
+LOAD C, 0     ; Döngü sonu kontrolü için C register'ına 0 yükle
+
+; --- Döngü Başlangıcı (Bu satırın adresi 9 veya 0x09'dur) ---
+OUT A         ; A register'ının mevcut değerini ekrana yazdır
+SUB A, B      ; A'dan 1 çıkar (A = A - 1)
+CMP A, C      ; A register'ını 0 ile karşılaştır (A == C mi?)
+JNZ 9         ; Eğer sonuç sıfır DEĞİLSE (A != 0), adres 9'a geri zıpla
+
+; Döngü bittiğinde son olarak 0'ı da yazdıralım
+OUT A
+HALT          ; Programı bitir

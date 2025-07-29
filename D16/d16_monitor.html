@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D16 CPU Durum Monitörü</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .ram-byte.highlight {
+            background-color: #fef08a; /* yellow-200 */
+            color: #b45309; /* amber-700 */
+            font-weight: bold;
+        }
+        .ram-byte.zero {
+            color: #d1d5db; /* gray-400 */
+        }
+        .ram-byte.written {
+            background-color: #6ee7b7; /* emerald-300 */
+            color: #065f46; /* emerald-800 */
+            transition: background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Başlık -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-cyan-400">D16 CPU Monitörü</h1>
+            <div class="flex items-center space-x-2">
+                <div id="status-indicator" class="w-4 h-4 rounded-full bg-red-500 transition-colors duration-500"></div>
+                <span id="status-text" class="font-semibold">BEKLİYOR</span>
+            </div>
+        </div>
+        
+        <!-- YENİ: Hata,Uyarı Mesajı Alanı -->
+        <div id="error-banner" class="hidden bg-red-800 border border-red-600 text-white px-4 py-2 rounded-lg mb-6 text-center">
+            Simülatör çalışmıyor veya d16_state.json dosyasına erişilemiyor. Lütfen terminalde simülatörü çalıştırdığınızdan emin olun.
+        </div>
+
+        <!-- Registerlar ve Flaglar -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-400">PC (Program Counter)</p>
+                <p id="pc-val" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-400">ZF (Zero Flag)</p>
+                <p id="zf-val" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-400">Register A</p>
+                <p id="reg-a" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md text-center">
+                <p class="text-sm text-gray-400">Register B</p>
+                <p id="reg-b" class="text-3xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md text-center col-span-2 sm:col-span-1">
+                <p class="text-sm text-gray-400">Register C / D</p>
+                <div class="flex justify-center items-center space-x-4">
+                    <p id="reg-c" class="text-3xl font-bold text-white">0</p>
+                    <p class="text-gray-500">/</p>
+                    <p id="reg-d" class="text-3xl font-bold text-white">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RAM Monitör -->
+        <div>
+            <h2 class="text-xl font-bold mb-4 text-cyan-400">RAM (256 Bytes)</h2>
+            <div id="ram-grid" class="bg-gray-800 p-4 rounded-lg shadow-md grid grid-cols-8 sm:grid-cols-16 gap-2 text-center">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pcEl = document.getElementById('pc-val');
+        const zfEl = document.getElementById('zf-val');
+        const regAEl = document.getElementById('reg-a');
+        const regBEl = document.getElementById('reg-b');
+        const regCEl = document.getElementById('reg-c');
+        const regDEl = document.getElementById('reg-d');
+        const ramGridEl = document.getElementById('ram-grid');
+        const statusIndicatorEl = document.getElementById('status-indicator');
+        const statusTextEl = document.getElementById('status-text');
+        const errorBannerEl = document.getElementById('error-banner'); // Hata mesajı elementi
+
+        let lastKnownPC = -1;
+        let lastRamState = [];
+
+        async function updateUI() {
+            try {
+                const response = await fetch('d16_state.json?cachebust=' + new Date().getTime());
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const state = await response.json();
+                
+                errorBannerEl.classList.add('hidden'); // Hata yoksa bannerı gizleme
+
+                pcEl.textContent = state.pc;
+                zfEl.textContent = state.zf;
+                regAEl.textContent = state.A;
+                regBEl.textContent = state.B;
+                regCEl.textContent = state.C;
+                regDEl.textContent = state.D;
+
+                if (state.halted) {
+                    statusIndicatorEl.classList.replace('bg-green-500', 'bg-red-500');
+                    statusTextEl.textContent = 'DURDURULDU';
+                } else {
+                    statusIndicatorEl.classList.replace('bg-red-500', 'bg-green-500');
+                    statusTextEl.textContent = 'ÇALIŞIYOR';
+                }
+
+                if (state.pc !== lastKnownPC || lastRamState.length === 0) {
+                    ramGridEl.innerHTML = ''; 
+                    state.ram.forEach((byte, index) => {
+                        const byteEl = document.createElement('div');
+                        byteEl.classList.add('ram-byte', 'p-1', 'rounded', 'text-xs');
+                        byteEl.textContent = byte.toString().padStart(3, '0');
+                        
+                        if (index === state.pc) {
+                            byteEl.classList.add('highlight');
+                        } else if (lastRamState.length > 0 && byte !== lastRamState[index]) {
+                            // Eğer byte değeri değiştiyse belirtme
+                            byteEl.classList.add('written');
+                        } else if (byte === 0) {
+                            byteEl.classList.add('zero');
+                        }
+                        ramGridEl.appendChild(byteEl);
+                    });
+                }
+                lastKnownPC = state.pc;
+                lastRamState = state.ram;
+
+            } catch (error) {
+                errorBannerEl.classList.remove('hidden'); // Hata varsa bannerı göster
+                statusIndicatorEl.classList.replace('bg-green-500', 'bg-red-500');
+                statusTextEl.textContent = 'ERİŞİM HATASI';
+            }
+        }
+
+        setInterval(updateUI, 200);
+        window.onload = updateUI;
+    </script>
+
+</body>
+</html>
